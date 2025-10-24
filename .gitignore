@@ -84,3 +84,9 @@ coverage/
 .cache/
 temp/
 tmp/
+
+# Generated files from running locally
+api/database/*.db
+web_ui/next-env.d.ts
+web_ui/package-lock.json
+.env.local

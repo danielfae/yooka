@@ -17,8 +17,14 @@ class ChatHandler:
     """Handle chat interactions with OpenAI."""
 
     def __init__(self):
-        self.client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        self.model = "gpt-4o-mini"  # Use the same model as voice agent
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            logger.warning("OPENAI_API_KEY not set - chat functionality will be disabled")
+            self.client = None
+            self.model = "gpt-4o-mini"
+        else:
+            self.client = AsyncOpenAI(api_key=api_key)
+            self.model = "gpt-4o-mini"  # Use the same model as voice agent
 
     async def handle_message(
         self,
@@ -38,6 +44,14 @@ class ChatHandler:
             Dictionary containing response and metadata
         """
         logger.info(f"Processing chat message: {message[:50]}...")
+
+        # Check if client is available
+        if not self.client:
+            return {
+                "message": "⚠️ Chat functionality is disabled. Please add your OPENAI_API_KEY to the .env file and restart the server.",
+                "sources": None,
+                "error": "OPENAI_API_KEY not configured"
+            }
 
         # Build system prompt
         system_prompt = self._build_system_prompt(search_context)
